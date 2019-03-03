@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset
+
+[[ $# -lt 2 || ! -f "$1" ]] && echo "USAGE: $0 plugin-list plugin-folder [parallel-workers]" && exit 1
+
+plug_list="$1"
+plug_folder="$2"
+[[ $# -eq 3 && "$3" =~ ^[0-9]+$ ]] && parallel="$3" || parallel=1
+
+logfile=$(mktemp)
+green='\033[0;32m'
+blue='\033[0;34m'
+nc='\033[0m'  # no color
+export logfile green blue nc
+
+clone_or_update_url() {
+    folder="$1"
+    name=${2##*/}
+    url=${2}.git
+
+    if [[ -d "$folder/$name/.git" ]]; then
+        # folder exists, so update it with pull
+        git -C "$folder/$name" pull --quiet --ff-only
+        log=$(git -C "$folder/$name" log --pretty=oneline --color --abbrev-commit ORIG_HEAD..)
+
+        # update log output if diff is non-empty
+        [[ ${log} =~ [^[:space:]] ]] && echo -e "${green}# ${name}:${nc}\n${log}\n" >>"$logfile"
+        echo -e "Updated ${blue}${name}${nc}!"
+    else
+        # folder does not exist (or is not a git repo), so clone it
+        git clone --quiet --depth 1 --no-single-branch "$url" "$folder/$name"
+        echo -e "Cloned ${blue}${name}${nc}!"
+    fi
+}
+export -f clone_or_update_url
+
+# run clone or update in parallel
+grep -v '^\s*#' "$plug_list" | xargs -P "$parallel" -I {} bash -c "clone_or_update_url $plug_folder/"'{}'
+
+# generate helptags in headless Vim
+echo "silent! helptags ALL | q!" | vim -Nes
+
+# display and clear log
+echo && cat "$logfile" && rm "$logfile" 
