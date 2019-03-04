@@ -8,7 +8,7 @@ A (very) minimal bash script to [g]et packages for Vim 8+ and Neovim, as a compa
 * Display changelogs after updating
 * Build tags for help files
 * Parallel execution
-* About 50 lines of pure bash, requiring `git` and coreutils components `mktemp`, `xargs`, `gre[`
+* About 50 lines of pure bash, requiring `git` and coreutils components `mktemp`, `xargs`, `grep`
   
 ## Non-features
 * Removing unmanaged packages
