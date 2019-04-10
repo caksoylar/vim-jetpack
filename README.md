@@ -1,5 +1,5 @@
 # vim-jetpack
-A (very) minimal bash script to [g]et packages for Vim 8+ and Neovim, as a companion to the "packages" feature (see `:help packages` in Vim).
+A (very) minimal bash script to [g]et packages for Vim 8+, as a companion to the "packages" feature (see `:help packages` in Vim).
 
 ![vim-jetpack](https://caksoylar.github.io/vjp/vjp.png)
 
